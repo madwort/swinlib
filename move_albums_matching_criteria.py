@@ -1,9 +1,9 @@
-
 from swinlib.database import SwinLib
 
 SWINSIAN_FILENAME = "./Library.sqlite"
 LOCAL_LIBRARY_PATH = "/Users/tom/Music/"
 REMOTE_LIBRARY_PATH = "/Volumes/WD Passport/Music/"
+
 
 def main():
     sl = SwinLib(SWINSIAN_FILENAME)
@@ -39,13 +39,11 @@ def album_is_candidate(sl, album):
 
     return (
         (not sl.album_has_duplicate(album))
-        and
-        sl.album_is_stored_internal_drive(album)
-        and
-        (not sl.album_played_since_date(album, "2024-01-01"))
-        and
-        sl.album_added_before_date(album, "2024-01-01")
+        and sl.album_is_stored_internal_drive(album)
+        and (not sl.album_played_since_date(album, "2024-01-01"))
+        and sl.album_added_before_date(album, "2024-01-01")
     )
+
 
 if __name__ == "__main__":
     main()

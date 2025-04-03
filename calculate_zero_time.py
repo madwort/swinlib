@@ -1,5 +1,5 @@
-
 from swinlib.time import calculate_zero_time
+
 
 def main():
     # Some observed timestamps from my local db

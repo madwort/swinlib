@@ -5,6 +5,7 @@ from pathlib import Path
 
 from swinlib.time import datetime_string_to_time_float
 
+
 class SwinLib:
     def __init__(self, filename):
         self.filename = filename
@@ -20,8 +21,7 @@ class SwinLib:
         data = {"track_id": track_id}
         cur = self.con.cursor()
         res = cur.execute(
-            "SELECT dateadded from track WHERE track_id = :track_id LIMIT 1",
-            data
+            "SELECT dateadded from track WHERE track_id = :track_id LIMIT 1", data
         )
         track = res.fetchone()
         dateadded = track[0]
@@ -29,20 +29,17 @@ class SwinLib:
 
     def get_all_albums(self):
         cur = self.con.cursor()
-        res = cur.execute(
-            "SELECT album from track group by album"
-        )
+        res = cur.execute("SELECT album from track group by album")
         albums = res.fetchall()
         # for album in albums:
         #     print(album[0])
         return albums
 
-
     def get_album(self, album):
         cur = self.con.cursor()
         res = cur.execute(
             "SELECT track_id, tracknumber, dateadded, artist, title, path from track WHERE album = :album  ORDER BY tracknumber",
-            (album,)
+            (album,),
         )
         tracks = res.fetchall()
         return tracks
@@ -51,7 +48,7 @@ class SwinLib:
         cur = self.con.cursor()
         res = cur.execute(
             "SELECT lastplayed, artist, title, path from track WHERE album = :album  ORDER BY tracknumber",
-            (album,)
+            (album,),
         )
         tracks = res.fetchall()
         return tracks
@@ -65,7 +62,7 @@ class SwinLib:
         # breakpoint()
         res = cur.execute(
             "SELECT count(path) cp FROM track WHERE album = :album GROUP BY title ORDER BY cp DESC",
-            (album,)
+            (album,),
         )
         # duplicate = res.fetchall()
         # print(duplicate)
@@ -81,7 +78,7 @@ class SwinLib:
         # breakpoint()
         res = cur.execute(
             "SELECT count(*) FROM track WHERE album = :album and path like '/Users/tom/Music/%'",
-            (album,)
+            (album,),
         )
         # duplicate = res.fetchall()
         # print(duplicate)
@@ -89,7 +86,7 @@ class SwinLib:
 
         res = cur.execute(
             "SELECT count(*) FROM track WHERE album = :album and path not like '/Users/tom/Music/%'",
-            (album,)
+            (album,),
         )
         external_drive = res.fetchone()
 
@@ -104,13 +101,14 @@ class SwinLib:
         # breakpoint()
         res = cur.execute(
             "SELECT lastplayed FROM track WHERE album = :album ORDER BY lastplayed desc",
-            (album,)
+            (album,),
         )
         most_recently_played_track = res.fetchone()
-        if most_recently_played_track[0] is not None and most_recently_played_track[0] > datetime_string_to_time_float(datetime_string):
+        if most_recently_played_track[0] is not None and most_recently_played_track[
+            0
+        ] > datetime_string_to_time_float(datetime_string):
             return True
         return False
-
 
     def album_added_before_date(self, album, datetime_string):
         cur = self.con.cursor()
@@ -119,10 +117,12 @@ class SwinLib:
         # breakpoint()
         res = cur.execute(
             "SELECT dateadded FROM track WHERE album = :album ORDER BY dateadded desc",
-            (album,)
+            (album,),
         )
         most_recently_added_track = res.fetchone()
-        if most_recently_added_track[0] is not None and most_recently_added_track[0] < datetime_string_to_time_float(datetime_string):
+        if most_recently_added_track[0] is not None and most_recently_added_track[
+            0
+        ] < datetime_string_to_time_float(datetime_string):
             return True
         return False
 
@@ -140,10 +140,7 @@ class SwinLib:
                 previous_track_dateadded = track[2]
         return misordered_albums
 
-
-
-
-    def move_album(self, album, current_location, new_location, dry_run = True):
+    def move_album(self, album, current_location, new_location, dry_run=True):
         print(f"{album} - {current_location} -> {new_location}")
         tracks = self.get_album(album)
         for track in tracks:
@@ -157,7 +154,7 @@ class SwinLib:
             if dry_run:
                 continue
 
-            os.makedirs(new_directory, exist_ok = True)
+            os.makedirs(new_directory, exist_ok=True)
             shutil.move(old_path, new_path)
 
             # TODO: then update the db
@@ -168,9 +165,9 @@ class SwinLib:
             cur = self.con.cursor()
             res = cur.execute(
                 "UPDATE track SET path = :new_path WHERE path = :old_path;",
-                ({ "old_path": old_path, "new_path": new_path })
+                ({"old_path": old_path, "new_path": new_path}),
             )
-            print (f"tracks updated {res.rowcount}")
+            print(f"tracks updated {res.rowcount}")
 
         if dry_run:
             return
